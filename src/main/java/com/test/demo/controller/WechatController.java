@@ -1,0 +1,92 @@
+package com.test.demo.controller;
+
+import com.test.demo.message.Image;
+import com.test.demo.message.ImageMessage;
+import com.test.demo.message.TextMessage;
+import com.test.demo.util.CheckUtil;
+import com.test.demo.util.MessageUtil;
+import org.dom4j.DocumentException;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.Map;
+
+/**
+ * @author : leitong
+ * @date : 2021-10-15 22:42:47
+ **/
+@RestController
+@RequestMapping("/wx")
+public class WechatController {
+
+    @GetMapping("/")
+    public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String signature = request.getParameter("signature");
+        String timestamp = request.getParameter("timestamp");
+        String nonce = request.getParameter("nonce");
+        String echostr = request.getParameter("echostr");
+
+        PrintWriter out = response.getWriter();
+
+        if (CheckUtil.checkSignature(signature, timestamp, nonce)) {
+            out.print(echostr);
+        }
+    }
+
+    @PostMapping("/")
+    public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException, DocumentException {
+
+        request.setCharacterEncoding("UTF-8");
+        response.setContentType("application/json; charset=UTF-8");
+
+        try (PrintWriter out = response.getWriter()) {
+            Map<String, String> map = MessageUtil.xmlToMap(request);
+            String toUserName = map.get("ToUserName");
+            String fromUserName = map.get("FromUserName");
+            String msgType = map.get("MsgType");
+            String picUrl = map.get("PicUrl");
+            String mediaId = map.get("MediaId");
+            String content = map.get("Content");
+            String replyContent = "小哥哥".equals(content)
+                    | "老公".equals(content)
+                    | "亲爱的".equals(content) ? "我要送你一朵小花！！！" : "听不懂你在说啥！！！";
+
+            String message = null;
+            System.out.println(msgType);
+            if ("text".equals(msgType)) {
+                // 对文本消息进行处理
+                TextMessage text = TextMessage.builder()
+                        .FromUserName(toUserName)
+                        .ToUserName(fromUserName)
+                        .MsgType("text")
+                        .CreateTime(System.currentTimeMillis())
+                        .Content(replyContent)
+                        .build();
+                message = MessageUtil.textMessageToXML(text);
+            }
+            System.out.println(msgType);
+            if ("image".equals(msgType)) {
+                // 对图片消息进行处理
+                ImageMessage image = ImageMessage.builder()
+                        .FromUserName(toUserName)
+                        .ToUserName(fromUserName)
+                        .MsgType("image")
+                        .CreateTime(System.currentTimeMillis())
+                        .Image(Image.builder().MediaId(mediaId).build())
+                        .build();
+                System.out.println("ok");
+                message = MessageUtil.imageMessageToXML(image);
+            }
+            System.out.println(message);
+            out.print(message);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
