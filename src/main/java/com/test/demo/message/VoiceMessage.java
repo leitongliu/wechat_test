@@ -32,12 +32,10 @@ public class VoiceMessage {
      */
     private String MsgType;
     /**
-     * 语音消息媒体id，可以调用获取临时素材接口拉取数据。
-     */
-    private long MediaId;
-    /**
      * 语音格式，如amr，speex等
      */
     private String Format;
+
+    private Voice Voice;
 
 }

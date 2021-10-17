@@ -2,6 +2,7 @@ package com.test.demo.util;
 
 import com.test.demo.message.ImageMessage;
 import com.test.demo.message.TextMessage;
+import com.test.demo.message.VoiceMessage;
 import com.thoughtworks.xstream.XStream;
 import org.dom4j.Document;
 import org.dom4j.DocumentException;
@@ -58,6 +59,12 @@ public class MessageUtil {
     public static String imageMessageToXML(ImageMessage message) {
         XStream xStream = new XStream();
         xStream.alias("xml", ImageMessage.class);
+        return xStream.toXML(message);
+    }
+
+    public static String voiceMessageToXML(VoiceMessage message) {
+        XStream xStream = new XStream();
+        xStream.alias("xml", VoiceMessage.class);
         return xStream.toXML(message);
     }
 }

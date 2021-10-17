@@ -1,8 +1,6 @@
 package com.test.demo.controller;
 
-import com.test.demo.message.Image;
-import com.test.demo.message.ImageMessage;
-import com.test.demo.message.TextMessage;
+import com.test.demo.message.*;
 import com.test.demo.util.CheckUtil;
 import com.test.demo.util.MessageUtil;
 import org.dom4j.DocumentException;
@@ -50,15 +48,17 @@ public class WechatController {
             String toUserName = map.get("ToUserName");
             String fromUserName = map.get("FromUserName");
             String msgType = map.get("MsgType");
-            String picUrl = map.get("PicUrl");
             String mediaId = map.get("MediaId");
             String content = map.get("Content");
-            String replyContent = "小哥哥".equals(content)
-                    | "老公".equals(content)
-                    | "亲爱的".equals(content) ? "我要送你一朵小花！！！" : "听不懂你在说啥！！！";
+            String replyContent = content != null ? (
+                    content.contains("刘淼飏")
+                            | content.contains("小哥哥")
+                            | content.contains("老公")
+                            | content.contains("亲爱的")
+                            ? "我认识你！你是我家大可爱！"
+                            : "你谁呀！我不认识你，请念出你的身份证！") : "";
 
             String message = null;
-            System.out.println(msgType);
             if ("text".equals(msgType)) {
                 // 对文本消息进行处理
                 TextMessage text = TextMessage.builder()
@@ -70,7 +70,6 @@ public class WechatController {
                         .build();
                 message = MessageUtil.textMessageToXML(text);
             }
-            System.out.println(msgType);
             if ("image".equals(msgType)) {
                 // 对图片消息进行处理
                 ImageMessage image = ImageMessage.builder()
@@ -82,6 +81,18 @@ public class WechatController {
                         .build();
                 System.out.println("ok");
                 message = MessageUtil.imageMessageToXML(image);
+            }
+            if ("voice".equals(msgType)) {
+                // 对图片消息进行处理
+                VoiceMessage voice = VoiceMessage.builder()
+                        .FromUserName(toUserName)
+                        .ToUserName(fromUserName)
+                        .MsgType("voice")
+                        .CreateTime(System.currentTimeMillis())
+                        .Voice(Voice.builder().MediaId("ygEi-CVz_SvJ1hbbgvwomdj0HGzFGVgxjW9PN3-KksQOfakhS1Y47P-BaC_hskTa").build())
+                        .build();
+                System.out.println("ok");
+                message = MessageUtil.voiceMessageToXML(voice);
             }
             System.out.println(message);
             out.print(message);

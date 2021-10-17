@@ -35,9 +35,7 @@ public class ImageMessage {
      * 图片链接（由系统生成）
      */
     private String PicUrl;
-    /**
-     * 图片消息媒体id，可以调用获取临时素材接口拉取数据。
-     */
+
     private Image Image;
 
 }
